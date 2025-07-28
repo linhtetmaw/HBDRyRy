@@ -100,7 +100,7 @@
         <div class="text-6xl mb-4 animate-bounce-slow">🎉</div>
 
         <!-- Placeholder for birthday girl's photo -->
-        <img src="https://placehold.co/150x150/FFC0CB/FFFFFF?text=RyRy" alt="Birthday Girl" class="rounded-full mx-auto mb-6 shadow-lg border-4 border-pink-300 object-cover w-32 h-32 md:w-40 md:h-40">
+        <img src="https://raw.githubusercontent.com/linhtetmaw/HBDRyRy/refs/heads/main/RyRy.png" alt="Birthday Girl" class="rounded-full mx-auto mb-6 shadow-lg border-4 border-pink-300 object-cover w-32 h-32 md:w-40 md:h-40">
 
         <h1 class="text-4xl md:text-5xl font-extrabold text-pink-600 mb-4 tracking-tight">
             Happy RyRy Day!
@@ -118,10 +118,7 @@
         <a href="#" id="giftButton" class="inline-block text-6xl mt-6 animate-bounce-slow cursor-pointer no-underline">🎂</a>
         <p class="text-sm md:text-base text-gray-600 mt-2">Click Cake to check your birthday present.</p>
 
-        <!-- Play Birthday Song Button -->
-        <button id="playSongButton" class="mt-8 px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-75">
-            🎵 Replay Birthday Song 🎵
-        </button>
+        <!-- Removed the "Replay Birthday Song" button -->
     </div>
 
     <!-- Gift Card Section (initially hidden) -->
@@ -132,7 +129,7 @@
 
         <!-- Gift Card Image Frame - Vertical -->
         <div class="relative w-64 h-96 mx-auto mb-8 bg-gray-100 rounded-xl shadow-lg border-4 border-dashed border-gray-300 p-4 overflow-hidden flex items-center justify-center">
-            <img src="https://placehold.co/200x300/E0F2F7/000000?text=Your+Gift+Card+Here" alt="Gift Card Placeholder" class="w-full h-full rounded-lg object-cover shadow-md">
+            <img src="https://raw.githubusercontent.com/linhtetmaw/HBDRyRy/refs/heads/main/Ton-gift-card.jpeg" alt="Gift Card Placeholder" class="w-full h-full rounded-lg object-cover shadow-md">
             <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 text-white font-bold text-xl opacity-0 hover:opacity-100 transition-opacity duration-300 rounded-lg">
                 Upload Your Gift Card Image!
             </div>
@@ -142,7 +139,7 @@
         <div class="mb-8 p-4 bg-yellow-100 rounded-lg border border-yellow-300 shadow-inner">
             <p class="text-lg font-semibold text-yellow-800 mb-2">Your Gift Code:</p>
             <div id="giftCode" class="text-2xl md:text-3xl font-mono font-bold text-gray-800 break-all mb-4 select-all">
-                GIFT-RYRY-2025-ABCD
+                KFYBW9LE
             </div>
             <button id="copyCodeButton" class="px-6 py-2 bg-yellow-500 text-white font-bold rounded-full shadow-md hover:bg-yellow-600 transition duration-200 ease-in-out">
                 Copy Code
@@ -161,7 +158,7 @@
         const giftCardSection = document.getElementById('giftCardSection');
         const giftButton = document.getElementById('giftButton');
         const backToWishButton = document.getElementById('backToWishButton');
-        const playSongButton = document.getElementById('playSongButton');
+        // Removed playSongButton as it's no longer needed
         const copyCodeButton = document.getElementById('copyCodeButton');
         const giftCodeElement = document.getElementById('giftCode');
         const copyMessage = document.getElementById('copyMessage');
@@ -225,49 +222,20 @@
         }
 
         // Event listener for the initial "Enable Sound" button
-        // Changed to 'touchstart' for better mobile compatibility
-        enableAudioButton.addEventListener('touchstart', async (event) => {
-            event.preventDefault(); // Prevent potential double-tap issues
-            console.log('Touchstart detected on enableAudioButton');
+        // Reverted to 'click' listener for broader compatibility, especially on desktop.
+        enableAudioButton.addEventListener('click', async () => {
+            // Start Tone.js audio context
+            await Tone.start();
+            console.log('Audio context started by initial user gesture');
 
-            // Start Tone.js audio context and resume if suspended
-            try {
-                await Tone.start();
-                if (Tone.context.state !== 'running') {
-                    await Tone.context.resume();
-                    console.log('Audio context resumed.');
-                }
-                console.log('Audio context state:', Tone.context.state);
+            // Hide the overlay
+            audioEnableOverlay.classList.add('hidden');
 
-                // Hide the overlay
-                audioEnableOverlay.classList.add('hidden');
-
-                // Play the song immediately after enabling audio with a small delay
-                // This delay can sometimes help ensure the audio engine is fully ready
-                setTimeout(() => {
-                    playBirthdaySong();
-                }, 100); // 100ms delay
-
-            } catch (error) {
-                console.error('Error starting/resuming audio context:', error);
-                // Optionally, display a message to the user if audio fails to start
-            }
+            // Play the song immediately after enabling audio
+            playBirthdaySong();
         });
 
-        // Event listener for the "Replay Birthday Song" button
-        playSongButton.addEventListener('click', () => {
-            // Ensure audio context is running (it should be after the initial tap)
-            if (Tone.context.state !== 'running') {
-                Tone.context.resume().then(() => {
-                    console.log('Audio context resumed for replay.');
-                    playBirthdaySong();
-                }).catch(error => {
-                    console.error('Error resuming audio context for replay:', error);
-                });
-            } else {
-                playBirthdaySong();
-            }
-        });
+        // Removed the event listener for playSongButton as the button is removed.
 
         // Function to show the gift card section and hide the birthday wish section
         giftButton.addEventListener('click', function(event) {
