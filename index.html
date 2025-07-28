@@ -20,6 +20,9 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
+            /* Removed overflow: hidden; to allow scrolling */
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            overflow-y: auto;   /* Allow vertical scroll */
         }
 
         /* Simple confetti effect (pure CSS) */
@@ -51,6 +54,26 @@
                 transform: translateY(-10px);
             }
         }
+
+        /* Overlay for sound activation */
+        #audioEnableOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Ensure it's on top */
+            transition: opacity 0.5s ease-out;
+        }
+
+        #audioEnableOverlay.hidden {
+            opacity: 0;
+            pointer-events: none; /* Disable clicks when hidden */
+        }
     </style>
 </head>
 <body class="selection:bg-pink-300 selection:text-pink-900">
@@ -66,6 +89,13 @@
     <div class="confetti" style="left: 45%; animation-duration: 5.9s; animation-delay: 0.3s;"></div>
     <div class="confetti" style="left: 60%; animation-duration: 7.5s; animation-delay: 1.2s;"></div>
 
+    <!-- Audio Enable Overlay -->
+    <div id="audioEnableOverlay">
+        <button id="enableAudioButton" class="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold text-xl rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-green-400 focus:ring-opacity-75">
+            🎵 Tap to Enable Sound & Start! 🎵
+        </button>
+    </div>
+
     <!-- Birthday Wish Section -->
     <div id="birthdayWishSection" class="bg-white p-8 md:p-12 rounded-3xl shadow-2xl text-center max-w-sm mx-auto transform hover:scale-105 transition-transform duration-300 ease-in-out border-4 border-pink-400">
         <div class="text-6xl mb-4 animate-bounce-slow">🎉</div>
@@ -77,7 +107,8 @@
             Happy RyRy Day!
         </h1>
         <p class="text-lg md:text-xl text-gray-700 leading-relaxed mb-6">
-            Happy Birthday! Wishing you good health and well-being and great progress toward all your goals—life, gym, body, and foodie! May your year shine even brighter and be as sweet as desserts you love.
+            Wishing you a day filled with joy, laughter, and everything that makes you happy.
+            May your year ahead be even brighter!
         </p>
         <p class="text-md md:text-lg font-semibold text-pink-500">
             Best wishes,
@@ -90,7 +121,7 @@
 
         <!-- Play Birthday Song Button -->
         <button id="playSongButton" class="mt-8 px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-75">
-            🎵 Play Birthday Song 🎵
+            🎵 Replay Birthday Song 🎵
         </button>
     </div>
 
@@ -135,6 +166,8 @@
         const copyCodeButton = document.getElementById('copyCodeButton');
         const giftCodeElement = document.getElementById('giftCode');
         const copyMessage = document.getElementById('copyMessage');
+        const audioEnableOverlay = document.getElementById('audioEnableOverlay');
+        const enableAudioButton = document.getElementById('enableAudioButton');
 
         // Simple animation for the bounce effect on emojis
         const emojis = document.querySelectorAll('.animate-bounce-slow');
@@ -155,12 +188,8 @@
         // Initial confetti positioning
         window.dispatchEvent(new Event('resize'));
 
-        // Tone.js for playing the birthday song
-        playSongButton.addEventListener('click', async () => {
-            // Start Tone.js audio context
-            await Tone.start();
-            console.log('Audio context started');
-
+        // Function to play the birthday song
+        async function playBirthdaySong() {
             // Create a synth
             const synth = new Tone.Synth().toDestination();
 
@@ -194,6 +223,28 @@
 
             // Start the Tone.Transport to begin playback
             Tone.Transport.start();
+        }
+
+        // Event listener for the initial "Enable Sound" button
+        enableAudioButton.addEventListener('click', async () => {
+            // Start Tone.js audio context
+            await Tone.start();
+            console.log('Audio context started by initial user gesture');
+
+            // Hide the overlay
+            audioEnableOverlay.classList.add('hidden');
+
+            // Play the song immediately after enabling audio
+            playBirthdaySong();
+        });
+
+        // Event listener for the "Replay Birthday Song" button
+        playSongButton.addEventListener('click', () => {
+            // Ensure audio context is running (it should be after the initial tap)
+            if (Tone.context.state !== 'running') {
+                Tone.start(); // Fallback in case context was suspended
+            }
+            playBirthdaySong();
         });
 
         // Function to show the gift card section and hide the birthday wish section
@@ -243,3 +294,4 @@
     </script>
 </body>
 </html>
+
