@@ -20,7 +20,6 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            /* Removed overflow: hidden; to allow scrolling */
             overflow-x: hidden; /* Prevent horizontal scroll */
             overflow-y: auto;   /* Allow vertical scroll */
         }
@@ -101,7 +100,7 @@
         <div class="text-6xl mb-4 animate-bounce-slow">🎉</div>
 
         <!-- Placeholder for birthday girl's photo -->
-        <img src="https://raw.githubusercontent.com/linhtetmaw/HBDRyRy/refs/heads/main/RyRy.png" alt="Birthday Girl" class="rounded-full mx-auto mb-6 shadow-lg border-4 border-pink-300 object-cover w-32 h-32 md:w-40 md:h-40">
+        <img src="https://placehold.co/150x150/FFC0CB/FFFFFF?text=RyRy" alt="Birthday Girl" class="rounded-full mx-auto mb-6 shadow-lg border-4 border-pink-300 object-cover w-32 h-32 md:w-40 md:h-40">
 
         <h1 class="text-4xl md:text-5xl font-extrabold text-pink-600 mb-4 tracking-tight">
             Happy RyRy Day!
@@ -226,25 +225,48 @@
         }
 
         // Event listener for the initial "Enable Sound" button
-        enableAudioButton.addEventListener('click', async () => {
-            // Start Tone.js audio context
-            await Tone.start();
-            console.log('Audio context started by initial user gesture');
+        // Changed to 'touchstart' for better mobile compatibility
+        enableAudioButton.addEventListener('touchstart', async (event) => {
+            event.preventDefault(); // Prevent potential double-tap issues
+            console.log('Touchstart detected on enableAudioButton');
 
-            // Hide the overlay
-            audioEnableOverlay.classList.add('hidden');
+            // Start Tone.js audio context and resume if suspended
+            try {
+                await Tone.start();
+                if (Tone.context.state !== 'running') {
+                    await Tone.context.resume();
+                    console.log('Audio context resumed.');
+                }
+                console.log('Audio context state:', Tone.context.state);
 
-            // Play the song immediately after enabling audio
-            playBirthdaySong();
+                // Hide the overlay
+                audioEnableOverlay.classList.add('hidden');
+
+                // Play the song immediately after enabling audio with a small delay
+                // This delay can sometimes help ensure the audio engine is fully ready
+                setTimeout(() => {
+                    playBirthdaySong();
+                }, 100); // 100ms delay
+
+            } catch (error) {
+                console.error('Error starting/resuming audio context:', error);
+                // Optionally, display a message to the user if audio fails to start
+            }
         });
 
         // Event listener for the "Replay Birthday Song" button
         playSongButton.addEventListener('click', () => {
             // Ensure audio context is running (it should be after the initial tap)
             if (Tone.context.state !== 'running') {
-                Tone.start(); // Fallback in case context was suspended
+                Tone.context.resume().then(() => {
+                    console.log('Audio context resumed for replay.');
+                    playBirthdaySong();
+                }).catch(error => {
+                    console.error('Error resuming audio context for replay:', error);
+                });
+            } else {
+                playBirthdaySong();
             }
-            playBirthdaySong();
         });
 
         // Function to show the gift card section and hide the birthday wish section
@@ -294,4 +316,3 @@
     </script>
 </body>
 </html>
-
